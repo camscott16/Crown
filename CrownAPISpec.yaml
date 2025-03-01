@@ -1,0 +1,368 @@
+# Crown Services
+#
+#
+# Description: API for managing user account sign-up, login, logout, password reset, JWT, recommendation engine and hairprofile interaction
+#
+
+# ---------General API Information---------
+openapi: "3.0.0"
+info:
+  version: "1.0.0"
+  title: "Crown REST API"
+  description: Crown services API
+
+# ---------API Server Information---------
+servers:
+  - url: TBD
+
+# ---------API Paths Information---------
+paths:
+  /auth/signup:
+    post:
+      description: Creates a user account if given valid credentials and unique email address.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/signupCredentials"
+
+      responses:
+        "200":
+          description: Sent valid credentials, adding account to database
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /auth/login:
+    post:
+      description: Allows user to send login request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/loginCredentials"
+
+      responses:
+        "200":
+          description: Sent valid credentials, retrieving access and refresh JWT tokens
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/account"
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /auth/logout:
+    post:
+      description: Requests logout
+
+      responses:
+        "200":
+          description: Successfully logged out, purging JWT tokens
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /auth/forgot-password:
+    post:
+      description: Allows user to send email for password request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/resetRequest"
+
+      responses:
+        "200":
+          description: Successful password reset
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/account"
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /auth/reset-password:
+    post:
+      description: Allows user to reset password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/passwordReset"
+
+      responses:
+        "200":
+          description: Successful password reset
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /auth/verify:
+    post:
+      description: Confirms user provided their email address
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/verification"
+
+      responses:
+        "200":
+          description: Email address verified!
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /users:
+    get:
+      description: Returns all users
+      parameters:
+        - $ref: "#/components/parameters/UserType"
+
+      responses:
+        "200":
+          description: Successfully returned a list of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  #  ----- Added line  --------------------------------
+                  $ref: "#/components/schemas/User"
+                  #  ---- /Added line  --------------------------------
+        "400":
+          #  ----- Added line  ----------------------------------------
+          $ref: "#/components/responses/400Error"
+          #  ---- /Added line  ----------------------------------------
+    post:
+      description: Post a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              #  ----- Added line  ------------------------------------
+              $ref: "#/components/schemas/RegisterUser"
+              #  ---- /Added line  ------------------------------------
+      responses:
+        "200":
+          description: Successfully created a new user
+        "400":
+          #  ----- Added line  ----------------------------------------
+          $ref: "#/components/responses/400Error"
+          #  ---- /Added line  ----------------------------------------
+
+    delete:
+      description: Delete a user using their unique id
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Successfully deleted a user by ID
+
+        "400":
+          #  ----- Added line  ----------------------------------------
+          $ref: "#/components/responses/400Error"
+          #  ---- /Added line  ----------------------------------------
+
+  /users/{id}/hair-profile:
+    post:
+      description: Submits survey results to occupy hair profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/hairSurvey"
+
+      responses:
+        "200":
+          description: Successfully saved hair profile
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+  /users/{id}/recommendation:
+    get:
+      description: Submits survey results to occupy hair profile
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+
+      responses:
+        "200":
+          description: Successfully retreived recommendation
+        "400":
+          $ref: "#/components/responses/400Error"
+        "500":
+          $ref: "#/components/responses/500Error"
+
+# ---------API Components Information---------
+# Contains all reusable parameters, responses, and schemas for the Accounts API
+components:
+  # ---------Parameters---------
+  parameters:
+    # Helps select user based on their account type
+    UserType:
+      name: user_type
+      in: header
+      description: User's account type (1 - client, 2 - admin)
+      schema:
+        type: integer
+
+  # ---------API Responses Information---------
+  responses:
+    # A schema for general 400 error code information
+    400Error:
+      description: Invalid Client Request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                description: A human readable error message
+                type: string
+
+    # A schema for general 500 error code information
+    500Error:
+      description: Unexpected Server Error
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                description: A human readable error message
+                type: string
+
+  # ---------API Schemas Information---------
+  schemas:
+    User:
+      description: User schema
+      type: object
+      required:
+        - user_name
+        - user_type
+      properties:
+        user_name:
+          type: string
+        user_type:
+          type: integer
+
+    RegisterUser:
+      description: User schema
+      type: object
+      required:
+        - user_name
+        - email
+        - password
+        - user_type
+      properties:
+        user_name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        user_type:
+          type: integer
+
+    # Login Credential schema to be re-used throughout the API
+    loginCredentials:
+      description: The requirements to login
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+
+    # signup Credential schema to be re-used throughout the API
+    signupCredentials:
+      description: The requirements to login
+      type: object
+      required:
+        - user_name
+        - email
+        - password
+      properties:
+        user_name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+
+    resetRequest:
+      description: Email submission schema
+      type: string
+      required:
+        - email
+      properties:
+        email:
+          type: string
+
+    passwordReset:
+      description: The requirements to password reset
+      type: object
+      required:
+        - reset-token
+        - new-password
+      properties:
+        reset-token:
+          type: string
+        new-password:
+          type: string
+
+    verification:
+      description: Verification code submission
+      type: string
+      required:
+        - verification-code
+      properties:
+        verification-code:
+          type: string
+
+    hairSurvey:
+      description: Array containing survey results
+      required:
+        - survey
+      properties:
+        survey:
+          type: array
+          items:
+            type: integer
