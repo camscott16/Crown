@@ -1,14 +1,15 @@
-import { StyleSheet } from 'react-native';
-
-import EditScreenInfo from '@/components/EditScreenInfo';
-import { Text, View } from '@/components/Themed';
+import React from 'react';
+import { StyleSheet, View, Text, Image } from 'react-native';
 
 export default function TabOneScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Tab One</Text>
-      <View style={styles.separator} lightColor="#eee" darkColor="rgba(255,255,255,0.1)" />
-      <EditScreenInfo path="app/(tabs)/index.tsx" />
+      <Image
+        source={require('../icon.png')}
+        style={styles.logo}
+      />
+      <Text style={styles.title}>Welcome to Crown!</Text>
+      <Text style={styles.subtitle}></Text>
     </View>
   );
 }
@@ -16,16 +17,26 @@ export default function TabOneScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#F9F9F9',
     alignItems: 'center',
     justifyContent: 'center',
+    padding: 20,
+  },
+  logo: {
+    width: 300,
+    height: 300,
+    marginBottom: 20,
+    resizeMode: 'contain',
   },
   title: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 32,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 10,
   },
-  separator: {
-    marginVertical: 30,
-    height: 1,
-    width: '80%',
+  subtitle: {
+    fontSize: 18,
+    color: '#555',
+    textAlign: 'center',
   },
 });
