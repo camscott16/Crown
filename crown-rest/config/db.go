@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"crown.com/rest-api/models"
 	"gorm.io/driver/postgres"
@@ -11,8 +12,25 @@ import (
 
 var DB *gorm.DB
 
+func getEnvWithDefault(key, defaultValue string) string {
+	value := os.Getenv(key)
+	if value == "" {
+		return defaultValue
+	}
+	return value
+}
+
 func ConnectDB() {
-	dsn := "host=localhost user=postgres dbname=crown password=lego sslmode=disable"
+
+	host := getEnvWithDefault("DB_HOST", "host.docker.internal")
+	port := getEnvWithDefault("DB_PORT", "5432")
+	user := getEnvWithDefault("DB_USER", "postgres")
+	dbname := getEnvWithDefault("DB_NAME", "crown")
+	password := getEnvWithDefault("DB_PASSWORD", "lego")
+	sslmode := getEnvWithDefault("DB_SSLMODE", "disable")
+
+	dsn := fmt.Sprintf("host=%s port=%s user=%s dbname=%s password=%s sslmode=%s", host, port, user, dbname, password, sslmode)
+
 	var err error
 	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
