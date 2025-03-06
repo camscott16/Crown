@@ -5,7 +5,7 @@ Crown is a mobile application that is designed to recommend hair-care products a
 
 # Contributors:
     - Cam Scott @camscott16
-    - Trevor Katemba @
+    - Trevor Katemba @trevtemba
     - K'Nya Mcclurkin @
 
 
