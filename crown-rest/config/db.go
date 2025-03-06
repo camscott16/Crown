@@ -22,7 +22,7 @@ func getEnvWithDefault(key, defaultValue string) string {
 
 func ConnectDB() {
 
-	host := getEnvWithDefault("DB_HOST", "host.docker.internal")
+	host := getEnvWithDefault("DB_HOST", "localhost")
 	port := getEnvWithDefault("DB_PORT", "5432")
 	user := getEnvWithDefault("DB_USER", "postgres")
 	dbname := getEnvWithDefault("DB_NAME", "crown")
