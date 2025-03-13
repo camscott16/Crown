@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'expo-router';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 
 export default function Index() {
@@ -24,7 +25,7 @@ export default function Index() {
         <Text style={styles.secondaryButtonText}>Create Account</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.guestButton}>
-        <Text style={styles.guestButtonText}>Continue as Guest</Text>
+        <Link href="/(tabs)/home">Continue as Guest</Link>
       </TouchableOpacity>
     </View>
   );
