@@ -25,7 +25,7 @@ export default function Index() {
         <Text style={styles.secondaryButtonText}>Create Account</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.guestButton}>
-        <Link href="/(tabs)/home">Continue as Guest</Link>
+        <Link href="/(tabs)/main"> Continue as Guest</Link>
       </TouchableOpacity>
     </View>
   );
