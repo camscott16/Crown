@@ -68,10 +68,18 @@ func LoginUser(c *gin.Context) {
 		return
 	}
 
+	jwt_token, err := services.GenerateJWT(user)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error generating JWT token"})
+		return
+	}
+
 	response := gin.H{
 		"message":   "User successfully logged in!",
-		"jwt_token": "(generated token)",
+		"jwt_token": jwt_token,
 	}
+
 	c.JSON(http.StatusOK, response)
 }
 func LogoutUser(c *gin.Context) {

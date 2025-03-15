@@ -3,7 +3,6 @@ package main
 import (
 	"crown.com/rest-api/config"
 	"crown.com/rest-api/routes"
-
 	"github.com/gin-gonic/gin"
 )
 
