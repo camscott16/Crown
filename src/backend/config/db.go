@@ -39,7 +39,7 @@ func ConnectDB() {
 
 	fmt.Println("Connected to crown db!")
 
-	err = DB.AutoMigrate(&models.User{}, &models.HairProfile{})
+	err = DB.AutoMigrate(&models.User{}, &models.HairProfile{}, &models.Product{})
 
 	if err != nil {
 		log.Fatal("Error migrating models to crown db", err)
