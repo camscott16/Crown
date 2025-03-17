@@ -7,6 +7,7 @@ interface User {
   username: string;
   email: string;
   role : number;
+  properties : Array<number>;
   // will add properties later...
 }
 

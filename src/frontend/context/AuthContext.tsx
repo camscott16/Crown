@@ -38,6 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             username: data.username,
             email: data.email,
             role: data.role, 
+            properties: [-1, -1, -1],
           }
           if (response.ok) {
             setToken(storedToken); // set token
@@ -77,12 +78,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           username: data.username,
           email: data.email,
           role: data.role, 
+          properties: [-1, -1, -1],
         }
         if (response.ok) {
           setToken(jwt); // set token
           setUser(user)
-          const valStore = await AsyncStorage.getItem('user');
-          console.log(valStore)
           console.log("success")
         } else {
           await SecureStore.deleteItemAsync("bearer"); // Remove invalid token
@@ -98,8 +98,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    await SecureStore.deleteItemAsync("bearer");
+    const user = {
+        user_id: -1,  // Convert to string if necessary
+        username: "guest",
+        email: "N/A",
+        role: 0, 
+        properties: [-1, -1, -1],
+      }
+    await SecureStore.deleteItemAsync("bearer"); 
     setToken(null);
+    setUser(user)
     router.replace("/(login)");
   };
 
