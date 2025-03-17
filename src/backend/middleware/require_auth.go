@@ -26,13 +26,16 @@ func RequireAuth(c *gin.Context) {
 
 	token_string := split_value[1]
 
-	username, err := services.ValidateJWT(token_string)
+	userDetails, err := services.ValidateJWT(token_string)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "JWT invalid/expired"})
 		c.Abort()
 		return
 	}
 
-	c.Set("user", username)
+	c.Set("user_id", userDetails.ID)
+	c.Set("username", userDetails.Username)
+	c.Set("email", userDetails.Email)
+	c.Set("role", userDetails.Role)
 	c.Next()
 }

@@ -34,10 +34,15 @@ func SetupRoutes(router *gin.Engine) {
 
 	validateRoute.GET("/", func(c *gin.Context) {
 		// Retrieve user ID from context
-		userID, _ := c.Get("user")
+		userID, _ := c.Get("user_id")
+		userName, _ := c.Get("username")
+		email, _ := c.Get("email")
+		userRole, _ := c.Get("role")
 		c.JSON(200, gin.H{
-			"message": "You are authorized",
-			"user":    userID,
+			"user_id":  userID,
+			"username": userName,
+			"email":    email,
+			"role":     userRole,
 		})
 	})
 }

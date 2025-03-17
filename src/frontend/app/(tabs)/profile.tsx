@@ -1,7 +1,12 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { useUser } from '@/context/UserContext'
+import { useAuth } from '@/context/AuthContext';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
 const ProfilePage = () => {
+  const { user } = useUser();
+  const { logout } = useAuth();
+
   return (
     <View style={styles.container}>
       <View style={styles.profileHeader}>
@@ -9,12 +14,15 @@ const ProfilePage = () => {
       </View>
       <View style={styles.profileInfo}>
         <Text style={styles.label}>Name:</Text>
-        <Text style={styles.value}>John Doe</Text>
+        <Text style={styles.value}>{user?.username}</Text>
         <Text style={styles.label}>Email:</Text>
-        <Text style={styles.value}>john.doe@example.com</Text>
+        <Text style={styles.value}>{user?.email}</Text>
         <Text style={styles.label}>About Me:</Text>
         <Text style={styles.value}>A short bio about the user goes here.</Text>
       </View>
+      <TouchableOpacity style={styles.button} onPress={logout}>
+        <Text style={styles.buttonText}>Logout</Text>
+      </TouchableOpacity>
     </View>
   );
 };
@@ -60,9 +68,24 @@ const styles = StyleSheet.create({
     color: '#000',
   },
   profileInfo: {
-    flexDirection: 'row',
+    flexDirection: 'column',
+    gap: 10,
     marginBottom: 10,
-  }
+  },
+  button: {
+    width: '75%',
+    height: 50,
+    backgroundColor: '#000', // Black button
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: '#fff', // White text on button
+    fontSize: 18,
+    fontWeight: '600',
+  },
 });
 
 export default ProfilePage; 

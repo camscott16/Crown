@@ -15,6 +15,7 @@ var TEST_KEY string = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXIiLCJu
 
 type Credentials struct {
 	Username string `json:"user_name"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
@@ -58,7 +59,7 @@ func GenerateJWT(user models.User) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateJWT(token_string string) (string, error) {
+func ValidateJWT(token_string string) (models.User, error) {
 
 	var user models.User
 	token, err := jwt.Parse(token_string, func(token *jwt.Token) (interface{}, error) {
@@ -72,24 +73,24 @@ func ValidateJWT(token_string string) (string, error) {
 		return []byte(secret), nil
 	})
 	if err != nil {
-		return "", fmt.Errorf("token parse failed: %w", err)
+		return user, fmt.Errorf("token parse failed: %w", err)
 	}
 
 	if claims, ok := token.Claims.(jwt.MapClaims); ok {
 		// Check the expiration
 		if float64(time.Now().Unix()) > claims["exp"].(float64) {
-			return "", fmt.Errorf("token expired: %w", err)
+			return user, fmt.Errorf("token expired: %w", err)
 		}
 		result := config.DB.Where("id = ?", claims["sub"]).First(&user)
 
 		if result.Error != nil {
-			return "", fmt.Errorf("token doesn't exist for user: %w", err)
+			return user, fmt.Errorf("token doesn't exist for user: %w", err)
 		}
 
 	} else {
-		return "", fmt.Errorf("token doesn't exist")
+		return user, fmt.Errorf("token doesn't exist")
 	}
 
-	return user.Username, nil
+	return user, nil
 
 }

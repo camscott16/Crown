@@ -1,26 +1,16 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { UserContext } from '@/context/UserContext';
+import { useUser } from '@/context/UserContext'
+import { Link } from 'expo-router';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 
-const HomePage = () => {
+const HairSurveyPage = () => {
+  const { user } = useUser()
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Welcome to Your Dashboard</Text>
-      </View>
-      <View style={styles.profileSection}>
-        <Image
-          source={{ uri: 'https://gifer.com/en/Y3iq' }}
-          style={styles.profileImage}
-        />
-        <Text style={styles.name}>John Doe</Text>
-        <Text style={styles.email}>john.doe@example.com</Text>
-      </View>
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Your Recent Activity</Text>
-        <Text style={styles.text}>
-          Here you can display your recent activity or achievements.
-        </Text>
-      </View>
+        <View style={styles.header}>
+        <Text style={styles.title}>Hair Survey Will be Implemented Next Sprint</Text>
+        </View>
     </View>
   );
 };
@@ -74,8 +64,27 @@ const styles = StyleSheet.create({
   email: {
     fontSize: 16,
     color: '#000',
+    marginBottom: 10,
+  },
+  role: {
+    fontSize: 14,
+    color: 'hsl(0, 0%, 70%)',
     marginBottom: 20,
-  }
+  },
+  button: {
+    width: '75%',
+    height: 50,
+    backgroundColor: '#000', // Black button
+    borderRadius: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 15,
+  },
+  buttonText: {
+    color: '#fff', // White text on button
+    fontSize: 18,
+    fontWeight: '600',
+  },
 });
 
-export default HomePage;
+export default HairSurveyPage;

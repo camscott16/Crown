@@ -52,15 +52,28 @@ func LoginUser(c *gin.Context) {
 
 	fmt.Println(credentials)
 
-	result := config.DB.Where("username = ?", credentials.Username).First(&user)
+	if credentials.Username != "" {
+		result := config.DB.Where("username = ?", credentials.Username).First(&user)
 
-	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve User"})
+		if result.Error != nil {
+			if result.Error == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve User"})
+			}
+			return
 		}
-		return
+	} else {
+		result := config.DB.Where("email = ?", credentials.Email).First(&user)
+
+		if result.Error != nil {
+			if result.Error == gorm.ErrRecordNotFound {
+				c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+			} else {
+				c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve User"})
+			}
+			return
+		}
 	}
 
 	if err := services.ValidatePassword(user.Password, credentials.Password); err != nil {
