@@ -6,8 +6,9 @@ import (
 
 type HairProfile struct {
 	gorm.Model
-	UserId   uint  `json:"user_id"`
-	CurlType uint8 `json:"curl_type"`
-	Porosity uint8 `json:"porosity"`
-	Volume   uint8 `json:"volume"`
+	UserId         uint   `json:"user_id"`
+	CurlType       string `json:"curl_type"`
+	Porosity       string `json:"porosity"`
+	Volume         string `json:"volume"`
+	DesiredOutcome string `json:"desired_outcome"`
 }

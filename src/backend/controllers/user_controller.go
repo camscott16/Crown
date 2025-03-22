@@ -6,6 +6,7 @@ import (
 
 	"crown.com/rest-api/config"
 	"crown.com/rest-api/models"
+	"crown.com/rest-api/services"
 	"gorm.io/gorm"
 
 	"net/http"
@@ -131,9 +132,23 @@ func GetRecommendation(c *gin.Context) {
 		return
 	}
 
+	recommendation, err := services.FindProducts(hairProfile)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
+	recommendation.UserId = userID
+
+	if err := config.DB.Create(&recommendation).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Recommendation could not be made at this time"})
+		return
+	}
+
 	response := gin.H{
-		"message":      fmt.Sprintf("Hair profile retrieved successfully for user: %s, will fetch recommendations from it when implemented :)", id),
-		"hair_profile": hairProfile,
+		"message":        fmt.Sprintf("Recommendation successful for %d", userID),
+		"recommendation": recommendation,
 	}
 
 	c.JSON(http.StatusOK, response)
