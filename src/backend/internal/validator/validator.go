@@ -8,6 +8,8 @@ import (
 )
 
 var EmailRX = regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+var PasswordRX = regexp.MustCompile("") // will make this more strict as we move to prod
+var UsernameRX = regexp.MustCompile("^[a-zA-Z0-9_]{3,20}$")
 
 // Define a new Validator struct which contains a map of validation error messages
 // for our form fields.

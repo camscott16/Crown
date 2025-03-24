@@ -15,9 +15,20 @@ import (
 func SignupUser(c *gin.Context) {
 
 	var user models.User
-	if err := c.ShouldBindJSON(&user); err != nil {
+	var credentials helpers.Credentials
+
+	if err := c.ShouldBindJSON(&credentials); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+
+	if err := helpers.SanityCheckCred(credentials); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	} else {
+		user.Username = credentials.Username
+		user.Email = credentials.Email
+		user.Password = credentials.Password
 	}
 
 	hashed_password, err := helpers.HashPassword(user.Password)
@@ -30,7 +41,7 @@ func SignupUser(c *gin.Context) {
 	}
 
 	if err := config.DB.Create(&user).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create hair profile"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user profile"})
 		return
 	}
 

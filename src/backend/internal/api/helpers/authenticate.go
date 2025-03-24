@@ -7,6 +7,7 @@ import (
 
 	"crown.com/rest-api/internal/config"
 	"crown.com/rest-api/internal/models"
+	"crown.com/rest-api/internal/validator"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,6 +26,23 @@ func getEnvWithDefault(key, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+func SanityCheckCred(credentials Credentials) error {
+	// Check that username has between 3-20 valid characters
+	if ok := validator.Matches(credentials.Username, validator.UsernameRX); !ok {
+		return fmt.Errorf("invalid username format")
+	}
+	// Check if email contains proper regex format
+	if ok := validator.Matches(credentials.Email, validator.EmailRX); !ok {
+		return fmt.Errorf("invalid email format")
+	}
+	// Check passord has at least 8
+	if ok := validator.MinChars(credentials.Password, 8); !ok {
+		return fmt.Errorf("password contains fewer than 8 characters")
+	}
+
+	return nil
 }
 
 func HashPassword(password string) (string, error) {
