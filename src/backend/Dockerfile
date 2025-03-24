@@ -14,7 +14,7 @@ RUN go mod download
 COPY . .
 
 # Build the Go application
-RUN go build -o crown .
+RUN go build -o crown ./cmd/api
 
 # Use a lightweight Alpine image for the final stage
 FROM alpine:latest

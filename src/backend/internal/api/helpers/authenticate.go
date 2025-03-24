@@ -1,12 +1,12 @@
-package services
+package helpers
 
 import (
 	"fmt"
 	"os"
 	"time"
 
-	"crown.com/rest-api/config"
-	"crown.com/rest-api/models"
+	"crown.com/rest-api/internal/config"
+	"crown.com/rest-api/internal/models"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )

@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"crown.com/rest-api/models"
+	"crown.com/rest-api/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

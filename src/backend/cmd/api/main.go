@@ -1,8 +1,8 @@
 package main
 
 import (
-	"crown.com/rest-api/config"
-	"crown.com/rest-api/routes"
+	"crown.com/rest-api/internal/api"
+	"crown.com/rest-api/internal/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,7 +11,7 @@ func main() {
 	config.ConnectDB()
 
 	r := gin.Default()
-	routes.SetupRoutes(r)
+	api.SetupRoutes(r)
 
 	r.Run(":8080")
 

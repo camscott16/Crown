@@ -1,12 +1,12 @@
-package controllers
+package handlers
 
 import (
 	"fmt"
 	"strconv"
 
-	"crown.com/rest-api/config"
-	"crown.com/rest-api/models"
-	"crown.com/rest-api/services"
+	"crown.com/rest-api/internal/api/helpers"
+	"crown.com/rest-api/internal/config"
+	"crown.com/rest-api/internal/models"
 	"gorm.io/gorm"
 
 	"net/http"
@@ -132,7 +132,7 @@ func GetRecommendation(c *gin.Context) {
 		return
 	}
 
-	recommendation, err := services.FindProducts(hairProfile)
+	recommendation, err := helpers.FindProducts(hairProfile)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

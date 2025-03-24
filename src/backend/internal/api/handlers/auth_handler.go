@@ -1,12 +1,12 @@
-package controllers
+package handlers
 
 import (
 	"fmt"
 	"net/http"
 
-	"crown.com/rest-api/config"
-	"crown.com/rest-api/models"
-	"crown.com/rest-api/services"
+	"crown.com/rest-api/internal/api/helpers"
+	"crown.com/rest-api/internal/config"
+	"crown.com/rest-api/internal/models"
 	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
@@ -20,7 +20,7 @@ func SignupUser(c *gin.Context) {
 		return
 	}
 
-	hashed_password, err := services.HashPassword(user.Password)
+	hashed_password, err := helpers.HashPassword(user.Password)
 
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -42,7 +42,7 @@ func SignupUser(c *gin.Context) {
 
 func LoginUser(c *gin.Context) {
 
-	var credentials services.Credentials
+	var credentials helpers.Credentials
 	var user models.User
 
 	if err := c.ShouldBindJSON(&credentials); err != nil {
@@ -76,12 +76,12 @@ func LoginUser(c *gin.Context) {
 		}
 	}
 
-	if err := services.ValidatePassword(user.Password, credentials.Password); err != nil {
+	if err := helpers.ValidatePassword(user.Password, credentials.Password); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Incorrect username/password"})
 		return
 	}
 
-	jwt_token, err := services.GenerateJWT(user)
+	jwt_token, err := helpers.GenerateJWT(user)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"message": "Error generating JWT token"})

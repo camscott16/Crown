@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"strings"
 
-	"crown.com/rest-api/services"
+	"crown.com/rest-api/internal/api/helpers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -26,7 +26,7 @@ func RequireAuth(c *gin.Context) {
 
 	token_string := split_value[1]
 
-	userDetails, err := services.ValidateJWT(token_string)
+	userDetails, err := helpers.ValidateJWT(token_string)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "JWT invalid/expired"})
 		c.Abort()

@@ -1,4 +1,4 @@
-package services
+package helpers
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"crown.com/rest-api/models"
+	"crown.com/rest-api/internal/models"
 
 	"github.com/invopop/jsonschema"
 	"github.com/openai/openai-go"
