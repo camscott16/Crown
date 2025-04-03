@@ -1,15 +1,19 @@
 import React, { useState } from 'react';
 import { UserContext } from '@/context/UserContext';
 import { useUser } from '@/context/UserContext'
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { RadioButton } from "react-native-paper";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HairSurveyPage: React.FC = () => {
   const { user } = useUser();
+  const router = useRouter();
+
   const [survProgState, updateSurvProgState] = useState<number[]>([1, 0, 0, 0, 0]); // 1st question starts as "in progress"
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const surveyQuestions = [
     { 
@@ -58,6 +62,81 @@ const HairSurveyPage: React.FC = () => {
       newState[currentQuestion] = 1; // mark current question as in progress
       return newState;
     });
+  };
+
+  const sanitizeAnswers = (answers: { [key: number]: string }): { curl_type: string, porosity: string, volume: string, desired_outcome: string } => {
+    // Define the sanitized object according to the HairProfile schema
+    const sanitizedProfile: { curl_type: string, porosity: string, volume: string, desired_outcome: string } = {
+      curl_type: answers[0] || "",
+      volume: mapVolumeToValue(answers[1] || ""),
+      porosity: mapPorosityToValue(answers[2] || ""),
+      desired_outcome: answers[3] || answers[4] || ""
+    };
+  
+    return sanitizedProfile;
+  };
+  
+  // Helper function to map volume options to high, medium, low
+  const mapVolumeToValue = (volume: string): string => {
+    switch (volume) {
+      case "Thick":
+        return "High";
+      case "Normal":
+        return "Medium";
+      case "Thin":
+        return "Low";
+      default:
+        return "";
+    }
+  };
+  
+  // Helper function to map porosity options to high, medium, low
+  const mapPorosityToValue = (porosity: string): string => {
+    switch (porosity) {
+      case "Absorb quickly":
+        return "High";
+      case "Absorb slowly":
+        return "Medium";
+      case "Stays on top of my hair":
+        return "Low";
+      default:
+        return "";
+    }
+  };
+
+  const handleSubmit = async (answers: { [key: number]: string }) => {
+    setIsLoading(true);
+    const saneAnswers = sanitizeAnswers(answers)
+
+    try {
+      const token = await AsyncStorage.getItem('bearer');
+
+      if (!token) {
+        console.error("No jwt token found, please login again")
+        router.replace("/(login)");
+      }
+
+      const response = await fetch(`https://crown-api-production.up.railway.app/users/${user?.user_id}/hair-profile`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authentication': `Bearer: ${token}`
+        },
+        body: JSON.stringify(saneAnswers)
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("login succesful!")
+        
+        setIsLoading(true);
+      } else {
+        console.error('Hair profile submission failed:', data.message);
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
 
   return (
