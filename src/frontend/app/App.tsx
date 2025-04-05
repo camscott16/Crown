@@ -3,6 +3,8 @@ import { Slot, useRouter } from 'expo-router';
 import * as SecureStore from 'expo-secure-store';
 import { UserProvider } from '../context/UserContext';
 import { AuthProvider } from '@/context/AuthContext';
+import 'react-native-reanimated'
+import 'react-native-gesture-handler'
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true);

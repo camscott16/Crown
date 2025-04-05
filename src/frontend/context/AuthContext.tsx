@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             username: data.username,
             email: data.email,
             role: data.role, 
-            properties: [-1, -1, -1],
+            hair_profiles: [],
           }
           if (response.ok) {
             setToken(storedToken); // set token
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           username: data.username,
           email: data.email,
           role: data.role, 
-          properties: [-1, -1, -1],
+          hair_profiles: [],
         }
         if (response.ok) {
           setToken(jwt); // set token
@@ -103,7 +103,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         username: "guest",
         email: "N/A",
         role: 0, 
-        properties: [-1, -1, -1],
+        hair_profiles: [],
       }
     await SecureStore.deleteItemAsync("bearer"); 
     setToken(null);

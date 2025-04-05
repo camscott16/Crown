@@ -37,7 +37,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'black', // Navbar background color
+    backgroundColor: 'hsl(0, 0%, 100%)', // Navbar background color
     zIndex: 100, // Ensure navbar is on top of other elements
   },
 });

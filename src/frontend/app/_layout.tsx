@@ -4,13 +4,13 @@ import { UserProvider } from "../context/UserContext";
 
 export default function RootLayout() {
   return (
-      <UserProvider>
-    <AuthProvider>
-        <Stack>
-          <Stack.Screen name="(login)" />
-          <Stack.Screen name="(tabs)" />
+    <UserProvider>
+      <AuthProvider>
+        <Stack screenOptions={{ headerShown: false}}>
+          <Stack.Screen name="(login)" options={{ headerShown: false }} />
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         </Stack>
-    </AuthProvider>
-      </UserProvider>
+      </AuthProvider>
+    </UserProvider>
   );
 }
