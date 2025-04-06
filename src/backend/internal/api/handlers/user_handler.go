@@ -82,6 +82,7 @@ func DeleteUser(c *gin.Context) {
 func FetchUserData(c *gin.Context) {
 	// dto for the data this is fetching
 	var hairProfiles []struct {
+		Id             uint   `json:"id"`
 		CurlType       string `json:"curl_type"`
 		Porosity       string `json:"porosity"`
 		Volume         string `json:"volume"`
@@ -101,7 +102,7 @@ func FetchUserData(c *gin.Context) {
 	// queries database to find the users hair profiles and order them in descending order!
 	result := config.DB.
 		Table("hair_profiles").
-		Select("curl_type", "porosity", "volume", "desired_outcome").
+		Select("id", "curl_type", "porosity", "volume", "desired_outcome").
 		Where("user_id = ?", userID).
 		Order("created_at DESC").
 		Scan(&hairProfiles)
@@ -149,18 +150,18 @@ func CreateHairProfile(c *gin.Context) {
 
 func GetRecommendation(c *gin.Context) {
 
-	id := c.Param("id")
-	userIDInt, err := strconv.Atoi(id)
+	hpId := c.Param("hair-profile-id")
+	hpIDInt, err := strconv.Atoi(hpId)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid hair profile ID"})
 		return
 	}
-	userID := uint(userIDInt)
+	hpID := uint(hpIDInt)
 
 	// Query database for the HairProfile associated with the users id
 	var hairProfile models.HairProfile
-	result := config.DB.Where("user_id = ?", userID).First(&hairProfile)
+	result := config.DB.Where("id = ?", hpID).First(&hairProfile)
 
 	if result.Error != nil {
 		if result.Error == gorm.ErrRecordNotFound {
@@ -178,7 +179,7 @@ func GetRecommendation(c *gin.Context) {
 		return
 	}
 
-	recommendation.UserId = userID
+	recommendation.ProfileId = hairProfile.ID
 
 	if err := config.DB.Create(&recommendation).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Recommendation could not be made at this time"})
@@ -186,7 +187,7 @@ func GetRecommendation(c *gin.Context) {
 	}
 
 	response := gin.H{
-		"message":        fmt.Sprintf("Recommendation successful for %d", userID),
+		"message":        fmt.Sprintf("Recommendation successful for %d", hpID),
 		"recommendation": recommendation,
 	}
 
