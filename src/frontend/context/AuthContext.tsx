@@ -135,22 +135,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw new Error("Failed to fetch user data");
       }
 
-      const data: Array<{
-        curl_type: string;
-        porosity: string;
-        volume: string;
-        desired_outcome: string;
-      }> = await response.json();
+      const data = await response.json();
 
-      const profileArr = data.map(profile => ({
-        curl_type: profile.curl_type,
-        porosity: profile.porosity,
-        volume: profile.volume,
-        desired_outcome: profile.desired_outcome,
-      }));
+      if (Array.isArray(data)) {
+        const profileArr = data.map(profile => ({
+          curl_type: profile.curl_type,
+          porosity: profile.porosity,
+          volume: profile.volume,
+          desired_outcome: profile.desired_outcome,
+        }));
 
-      loadHairProfiles(profileArr);
-      console.log("success");
+        loadHairProfiles(profileArr);
+        console.log("success");
+      } else {
+        console.error("Unexpected data format:", data);
+      }
     } catch (error) {
       console.error("Error fetching user data:", error);
     }
