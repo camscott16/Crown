@@ -79,6 +79,45 @@ func DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User deleted"})
 }
 
+func FetchUserData(c *gin.Context) {
+	// dto for the data this is fetching
+	var hairProfiles []struct {
+		CurlType       string `json:"curl_type"`
+		Porosity       string `json:"porosity"`
+		Volume         string `json:"volume"`
+		DesiredOutcome string `json:"desired_outcome"`
+	}
+
+	id := c.Param("id")
+	userIDInt, err := strconv.Atoi(id)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
+		return
+	}
+
+	userID := uint(userIDInt)
+
+	// queries database to find the users hair profiles and order them in descending order!
+	result := config.DB.
+		Table("hair_profiles").
+		Select("curl_type", "porosity", "volume", "desired_outcome").
+		Where("user_id = ?", userID).
+		Order("created_at DESC").
+		Scan(&hairProfiles)
+
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"message": "User has no hair profiles"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve hair profile"})
+		}
+		return
+	}
+
+	c.JSON(http.StatusCreated, hairProfiles)
+}
+
 func CreateHairProfile(c *gin.Context) {
 	var hairProfile models.HairProfile
 

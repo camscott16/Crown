@@ -17,7 +17,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     const [token, setToken] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
-    const { setUser } = useUser()
+    const { setUser, loadHairProfiles } = useUser()
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -33,17 +33,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           });
 
           const data = await response.json();
-          const user = {
-            user_id: data.user_id,  // Convert to string if necessary
-            username: data.username,
-            email: data.email,
-            role: data.role, 
-            properties: [-1, -1, -1],
-          }
           if (response.ok) {
+            const user = {
+              user_id: data.user_id,  // Convert to string if necessary
+              username: data.username,
+              email: data.email,
+              role: data.role, 
+              hair_profiles: [],
+            }
             setToken(storedToken); // set token
             setUser(user)
-            const valStore = await AsyncStorage.getItem('user');
+            fetchUserData(data.user_id)
+
             router.replace("/(tabs)/home");
           } else {
             await SecureStore.deleteItemAsync("bearer"); // Remove invalid token
@@ -73,16 +74,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         const data = await response.json();
-        const user = {
-          user_id: data.user_id,  // Convert to string if necessary
-          username: data.username,
-          email: data.email,
-          role: data.role, 
-          properties: [-1, -1, -1],
-        }
         if (response.ok) {
+          const user = {
+            user_id: data.user_id,  // Convert to string if necessary
+            username: data.username,
+            email: data.email,
+            role: data.role, 
+            hair_profiles: [],
+          }
           setToken(jwt); // set token
           setUser(user)
+          fetchUserData(data.user_id)
           console.log("success")
         } else {
           await SecureStore.deleteItemAsync("bearer"); // Remove invalid token
@@ -97,13 +99,47 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     router.replace("/(tabs)/home"); // Redirect to home after login
   };
 
+  const fetchUserData = async (user_id: number) => {
+    const storedToken = await SecureStore.getItemAsync("bearer");
+  
+    try {
+      const response = await fetch(`https://crown-api-production.up.railway.app/users/${user_id}/fetch`, {
+        method: 'GET',
+        headers: { Authorization: `Bearer ${storedToken}` },
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to fetch user data");
+      }
+  
+      const data: Array<{
+        curl_type: string;
+        porosity: string;
+        volume: string;
+        desired_outcome: string;
+      }> = await response.json();
+  
+      const profileArr = data.map(profile => ({
+        curl_type: profile.curl_type,
+        porosity: profile.porosity,
+        volume: profile.volume,
+        desired_outcome: profile.desired_outcome,
+      }));
+  
+      loadHairProfiles(profileArr);
+      console.log("success");
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+
   const logout = async () => {
     const user = {
         user_id: -1,  // Convert to string if necessary
         username: "guest",
         email: "N/A",
         role: 0, 
-        properties: [-1, -1, -1],
+        hair_profiles: [],
       }
     await SecureStore.deleteItemAsync("bearer"); 
     setToken(null);

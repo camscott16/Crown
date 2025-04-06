@@ -27,6 +27,7 @@ func SetupRoutes(router *gin.Engine) {
 		userGroup.DELETE("/:id", handlers.DeleteUser)
 		userGroup.POST("/:id/hair-profile", handlers.CreateHairProfile)
 		userGroup.GET("/:id/recommendation", handlers.GetRecommendation)
+		userGroup.GET("/:id/fetch", handlers.FetchUserData)
 	}
 
 	validateRoute := router.Group("/validate")
