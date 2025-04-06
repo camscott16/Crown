@@ -8,6 +8,7 @@ interface User {
   email: string;
   role: number;
   hair_profiles: Array<{ curl_type: string; porosity: string; volume: string; desired_outcome: string }>; // Changed to array
+  profileImage?: string; // Added profileImage property
 }
 
 interface UserContextType {
