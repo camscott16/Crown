@@ -395,15 +395,14 @@ const styles = StyleSheet.create({
     width: '90%',
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20
   },
   button: {
     justifyContent: 'center',
     alignItems: 'center',
     padding: 12,
-    width: 125,
+    width: 150,
     height: 50,
-    borderRadius: 6,
+    borderRadius: 50,
     backgroundColor: "hsl(23, 100%, 56%)",
   },
   buttonText: {

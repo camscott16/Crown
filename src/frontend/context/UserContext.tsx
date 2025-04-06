@@ -15,6 +15,7 @@ interface UserContextType {
   setUser: (user: User | null) => void;
   logout: () => void;
   addProfile: (newProfile: { curl_type: string; porosity: string; volume: string; desired_outcome: string }) => Promise<void>;
+  loadHairProfiles: (hairProfiles: Array<{ curl_type: string; porosity: string; volume: string; desired_outcome: string }>) => Promise<void>;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -62,8 +63,18 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  const loadHairProfiles = async (hairProfiles: Array<{ curl_type: string; porosity: string; volume: string; desired_outcome: string }>) => {
+    if (!user) return; // If there's no user, do nothing
+
+    const loadedUser = { ...user, hair_profiles: hairProfiles };
+    setUser(loadedUser); // Update the user in context
+
+    // Save the updated user to AsyncStorage
+    await AsyncStorage.setItem('user', JSON.stringify(loadedUser));
+  };
+
   return (
-    <UserContext.Provider value={{ user, setUser: saveUser, logout, addProfile }}>
+    <UserContext.Provider value={{ user, setUser: saveUser, logout, addProfile, loadHairProfiles }}>
       {children}
     </UserContext.Provider>
   );
