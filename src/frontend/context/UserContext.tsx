@@ -53,7 +53,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (!user) return; // If there's no user, do nothing
 
     // Append the new profile to the hair_profiles array
-    const updatedProfiles = [...user.hair_profiles, newProfile];
+    const updatedProfiles = [newProfile, ...user.hair_profiles];
 
     // Update the user context with the new profile list
     const updatedUser = { ...user, hair_profiles: updatedProfiles };

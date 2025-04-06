@@ -285,19 +285,19 @@ const HairSurveyPage: React.FC = () => {
           <View style={styles.resCont}>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Type:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[user.hair_profiles.length-1].curl_type}</Text>
+              <Text style={styles.resField2}>{user?.hair_profiles[0].curl_type}</Text>
             </View>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Porosity:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[user.hair_profiles.length-1].porosity}</Text>
+              <Text style={styles.resField2}>{user?.hair_profiles[0].porosity}</Text>
             </View>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Volume:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[user.hair_profiles.length-1].volume}</Text>
+              <Text style={styles.resField2}>{user?.hair_profiles[0].volume}</Text>
             </View>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Desired Outcome:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[user.hair_profiles.length-1].desired_outcome}</Text>
+              <Text style={styles.resField2}>{user?.hair_profiles[0].desired_outcome}</Text>
             </View>
           </View>
         </View>

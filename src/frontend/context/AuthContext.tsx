@@ -44,6 +44,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setToken(storedToken); // set token
             setUser(user)
             fetchUserData(data.user_id)
+
             router.replace("/(tabs)/home");
           } else {
             await SecureStore.deleteItemAsync("bearer"); // Remove invalid token
