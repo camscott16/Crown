@@ -30,6 +30,11 @@ func SetupRoutes(router *gin.Engine) {
 		userGroup.GET("/:id/fetch", handlers.FetchUserData)
 	}
 
+	recommendationGroup := router.Group("/recommendation")
+	{
+		recommendationGroup.GET("/:hair-profile-id", handlers.GetRecommendation)
+	}
+
 	validateRoute := router.Group("/validate")
 	validateRoute.Use(middleware.RequireAuth)
 
