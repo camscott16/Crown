@@ -83,6 +83,7 @@ func FetchUserData(c *gin.Context) {
 	// dto for the data this is fetching
 	var hairProfiles []struct {
 		Id             uint   `json:"id"`
+		Name           string `json:"name"`
 		CurlType       string `json:"curl_type"`
 		Porosity       string `json:"porosity"`
 		Volume         string `json:"volume"`
@@ -102,25 +103,35 @@ func FetchUserData(c *gin.Context) {
 	// queries database to find the users hair profiles and order them in descending order!
 	result := config.DB.
 		Table("hair_profiles").
-		Select("id", "curl_type", "porosity", "volume", "desired_outcome").
+		Select("id", "name", "curl_type", "porosity", "volume", "desired_outcome").
 		Where("user_id = ?", userID).
 		Order("created_at DESC").
 		Scan(&hairProfiles)
 
 	if result.Error != nil {
-		if result.Error == gorm.ErrRecordNotFound {
-			c.JSON(http.StatusNotFound, gin.H{"message": "User has no hair profiles"})
-		} else {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve hair profile"})
-		}
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to retrieve hair profile"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, hairProfiles)
+	if len(hairProfiles) == 0 {
+		c.JSON(http.StatusOK, gin.H{"message": "User has no hair profiles", "data": []any{}})
+		return
+	}
+
+	c.JSON(http.StatusOK, hairProfiles)
 }
 
 func CreateHairProfile(c *gin.Context) {
 	var hairProfile models.HairProfile
+
+	var hairProfileDTO struct {
+		Id             uint   `json:"id"`
+		Name           string `json:"name"`
+		CurlType       string `json:"curl_type"`
+		Porosity       string `json:"porosity"`
+		Volume         string `json:"volume"`
+		DesiredOutcome string `json:"desired_outcome"`
+	}
 
 	id := c.Param("id")
 	userIDInt, err := strconv.Atoi(id)
@@ -144,7 +155,14 @@ func CreateHairProfile(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, hairProfile)
+	hairProfileDTO.Id = hairProfile.ID
+	hairProfileDTO.Name = hairProfile.Name
+	hairProfileDTO.CurlType = hairProfile.CurlType
+	hairProfileDTO.Porosity = hairProfile.Porosity
+	hairProfileDTO.Volume = hairProfile.Volume
+	hairProfileDTO.DesiredOutcome = hairProfile.DesiredOutcome
+
+	c.JSON(http.StatusCreated, hairProfileDTO)
 
 }
 
