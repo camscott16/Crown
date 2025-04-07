@@ -3,7 +3,8 @@ import { Platform } from "react-native";
 import * as SecureStore from "expo-secure-store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { useUser } from "@/context/UserContext";
+import { useUser } from '@/context/UserContext';
+import { User, hair_profile, recommendation } from "@/types/user";
 
 interface AuthContextType {
   token: string | null;
@@ -131,24 +132,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { Authorization: `Bearer ${storedToken}` },
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch user data");
-      }
-
       const data = await response.json();
-
+      // if backend returns an object with a `message` and empty data array
       if (Array.isArray(data)) {
-        const profileArr = data.map(profile => ({
-          curl_type: profile.curl_type,
-          porosity: profile.porosity,
-          volume: profile.volume,
-          desired_outcome: profile.desired_outcome,
+        const profileArr = data.map((profile: hair_profile) => ({
+          ...profile,
+          recommendation: null,
         }));
-
+        
+        // console.log(profileArr);
         loadHairProfiles(profileArr);
         console.log("success");
       } else {
-        console.error("Unexpected data format:", data);
+        console.log("No profiles:", data.message); // e.g. "User has no hair profiles"
+        loadHairProfiles([]); // load empty array into context
       }
     } catch (error) {
       console.error("Error fetching user data:", error);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { UserContext } from '@/context/UserContext';
 import { useUser } from '@/context/UserContext'
 import { Link, useRouter } from 'expo-router';
@@ -7,10 +7,16 @@ import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { MotiView, AnimatePresence } from 'moti'
 import { Easing } from 'react-native-reanimated'
+import { hair_profile } from '@/types/user';
+
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HairSurveyPage: React.FC = () => {
+
   const { user, addProfile } = useUser();
+  // useEffect(() => {
+  //   console.log(user?.hair_profiles);
+  // })
   const router = useRouter();
 
   const [survProgState, updateSurvProgState] = useState<number[]>([1, 0, 0, 0, 0]); // 1st question starts as "in progress"
@@ -68,24 +74,40 @@ const HairSurveyPage: React.FC = () => {
     });
   };
 
+  const refreshSurvey = () => {
+    updateSurvProgState([1, 0, 0, 0, 0]);
+    setCurrentQuestion(0);
+    setAnswers({});
+    setSurvActive(true);
+  }
+
+  const goToRecommend = () => {
+    // refreshSurvey()
+    router.replace("/(tabs)/recommendation")
+  }
+
   const sanitizeAnswers = (answers: { [key: number]: string }): { curl_type: string, porosity: string, volume: string, desired_outcome: string } => {
     // Define the sanitized object according to the HairProfile schema
-    const sanitizedProfile: { curl_type: string, porosity: string, volume: string, desired_outcome: string } = {
+    const sanitizedAnswerBody: { name: string, curl_type: string, porosity: string, volume: string, desired_outcome: string } = {
+      name: "hair_name_profile",
       curl_type: answers[0] || "",
       volume: mapVolumeToValue(answers[1] || ""),
       porosity: mapPorosityToValue(answers[2] || ""),
       desired_outcome: answers[4] || ""
     };
   
-    return sanitizedProfile;
+    return sanitizedAnswerBody;
   };
   
-  const sanitizeProfile = (data: {[key: string]: string}) => {
+  const sanitizeProfile = (data: hair_profile) => {
     const saneData = {
+      id: data.id,
+      name: data.name,
       curl_type: data.curl_type,
       porosity: data.porosity,
       volume: data.volume,
       desired_outcome: data.desired_outcome,
+      recommendation: null,
     }
     return saneData;
   }
@@ -142,8 +164,8 @@ const HairSurveyPage: React.FC = () => {
       const data = await response.json();
   
       if (response.ok) {
-        const saneData = sanitizeProfile(data);
-        addProfile(saneData)
+        const profileData = sanitizeProfile(data);
+        addProfile(profileData)
         console.log("Hair profile submission success!")
       } else {
         console.error('Hair profile submission failed:', data.message);
@@ -301,7 +323,7 @@ const HairSurveyPage: React.FC = () => {
             </View>
           </View>
         </View>
-        <TouchableOpacity style={styles.recommendBtn}>
+        <TouchableOpacity style={styles.recommendBtn} onPress={() => goToRecommend()}>
           <Text style={styles.btnText}>Recommend Products</Text>
         </TouchableOpacity>
         </MotiView>
