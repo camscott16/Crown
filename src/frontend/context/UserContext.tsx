@@ -2,6 +2,16 @@ import React, { createContext, useState, useEffect, ReactNode, useContext } from
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { User, hair_profile, recommendation } from "@/types/user";
 
+// Define user context shape
+// interface User {
+//   user_id: number;
+//   username: string;
+//   email: string;
+//   role: number;
+//   hair_profiles: Array<{ curl_type: string; porosity: string; volume: string; desired_outcome: string }>; // Changed to array
+//   profileImage?: string; // Added profileImage property
+// }
+
 interface UserContextType {
   user: User | null;
   setUser: (user: User | null) => void;
@@ -41,6 +51,14 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     await AsyncStorage.removeItem('bearer'); // Remove token as well
     setUser(null);
   };
+
+  // Update the hair_profile type to include an id property
+  // Assuming hair_profile is defined in @/types/user
+  // If not, please adjust accordingly
+
+  // const addProfile = async (newProfile: hair_profile) => {
+  //   const storedUser = await AsyncStorage.getItem('user');
+  //   if (!storedUser) return;
 
   const addProfile = async (newProfile: hair_profile) => {
     const storedUser = await AsyncStorage.getItem('user');
