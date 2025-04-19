@@ -24,6 +24,20 @@ const HairSurveyPage: React.FC = () => {
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [survActive, setSurvActive] = useState<boolean>(true);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(
+    () => user?.hair_profiles?.[0]?.id ?? null
+  );
+
+  useEffect(() => {
+    // If we don’t yet have a selectedProfileId but now do have profiles, pick the first
+    if (selectedProfileId === null && user?.hair_profiles?.length) {
+      setSelectedProfileId(user.hair_profiles[0].id);
+    }
+  }, [user?.hair_profiles]);
+  
+  const selectedProfile = user?.hair_profiles.find(
+    (p) => p.id === selectedProfileId
+  ) ?? null;
 
   const surveyQuestions = [
     { 
@@ -82,7 +96,7 @@ const HairSurveyPage: React.FC = () => {
   }
 
   const goToRecommend = () => {
-    // refreshSurvey()
+    refreshSurvey()
     router.replace("/(tabs)/recommendation")
   }
 
@@ -166,6 +180,7 @@ const HairSurveyPage: React.FC = () => {
       if (response.ok) {
         const profileData = sanitizeProfile(data);
         addProfile(profileData)
+        setSelectedProfileId(profileData.id)
         console.log("Hair profile submission success!")
       } else {
         console.error('Hair profile submission failed:', data.message);
@@ -307,19 +322,19 @@ const HairSurveyPage: React.FC = () => {
           <View style={styles.resCont}>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Type:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[0].curl_type}</Text>
+              <Text style={styles.resField2}>{selectedProfile?.curl_type}</Text>
             </View>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Porosity:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[0].porosity}</Text>
+              <Text style={styles.resField2}>{selectedProfile?.porosity}</Text>
             </View>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Volume:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[0].volume}</Text>
+              <Text style={styles.resField2}>{selectedProfile?.volume}</Text>
             </View>
             <View style={styles.resFieldCont}>
               <Text style={styles.resField1}>Desired Outcome:</Text>
-              <Text style={styles.resField2}>{user?.hair_profiles[0].desired_outcome}</Text>
+              <Text style={styles.resField2}>{selectedProfile?.desired_outcome}</Text>
             </View>
           </View>
         </View>

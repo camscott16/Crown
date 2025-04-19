@@ -8,7 +8,7 @@ import { hair_profile } from "@/types/user";
 import { Picker } from '@react-native-picker/picker';
 import LottieView from 'lottie-react-native';
 import { MotiView, AnimatePresence } from 'moti'
-import { Easing } from 'react-native-reanimated'
+import { Easing  } from 'react-native-reanimated'
 import { replace } from 'expo-router/build/global-state/routing';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -16,9 +16,21 @@ const RecommendationPage = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [recStartActive, setRecStartActive] = useState<boolean>(true);
   const { user, addRecommendation } = useUser();
-  const [selectedProfile, setSelectedProfile] = useState<hair_profile | null>(
-    user?.hair_profiles?.[0] ?? null
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(
+    () => user?.hair_profiles?.[0]?.id ?? null
   );
+
+  useEffect(() => {
+    // If we don’t yet have a selectedProfileId but now do have profiles, pick the first
+    if (selectedProfileId === null && user?.hair_profiles?.length) {
+      setSelectedProfileId(user.hair_profiles[0].id);
+    }
+  }, [user?.hair_profiles]);
+
+  // derive the “live” profile object on every render
+  const selectedProfile = user?.hair_profiles.find(
+    (p) => p.id === selectedProfileId
+  ) ?? null;
 
   const [currRec, setCurrRec] = useState<{ conditioners: Array<string>, shampoos:Array<string>, leave_in_conditioners: Array<string> }>(
     {
@@ -111,17 +123,12 @@ const RecommendationPage = () => {
             <View>
               <Text style={styles.role}>Select Hair Profile</Text>
               <Picker
-                selectedValue={selectedProfile ? selectedProfile.id.toString() : null}
-                onValueChange={(itemValue) => {
-                  const profile = user?.hair_profiles.find(
-                    (p) => p.id.toString() === itemValue
-                  );
-                  setSelectedProfile(profile ?? null); // Set to null if no matching profile
-                }}
+                selectedValue={selectedProfileId?.toString() ?? ''}
+                onValueChange={(itemValue) => setSelectedProfileId(Number(itemValue))}
                 style={styles.picker}
                 itemStyle={{ color: 'hsl(0, 0%, 20%)' }}
               >
-                {user?.hair_profiles.map((profile) => (
+                {user.hair_profiles.map((profile) => (
                   <Picker.Item
                     key={profile.id}
                     label={profile.name}
