@@ -29,32 +29,52 @@ const ProfilePage = () => {
     setPrivacyModalVisible(!isPrivacyModalVisible);
   };
 
-  const handleSave = async () => {
-    if (user && user.user_id) {
-      const updatedUser = { ...user, username, email, profileImage: avatarUri };
-      setUser(updatedUser);
-      await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
-      toggleModal();
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        alert('Permission to access media library is required!');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 1,
+      });
+
+      if (!result.canceled && result.assets && result.assets[0]) {
+        const { uri } = result.assets[0];
+        console.log('Selected image URI:', uri); // Debug log
+        setAvatarUri(uri);
+        
+        // Save immediately when image is picked
+        if (user && user.user_id) {
+          const updatedUser = { ...user, profileImage: uri };
+          console.log('Saving user with new image:', updatedUser); // Debug log
+          setUser(updatedUser);
+          await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+        }
+      }
+    } catch (error) {
+      console.error('Error picking/saving image:', error);
+      alert('Failed to save profile picture. Please try again.');
     }
   };
 
-  const pickImage = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Permission to access media library is required!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const { uri } = result.assets[0];
-      setAvatarUri(uri);
+  const handleSave = async () => {
+    try {
+      if (user && user.user_id) {
+        const updatedUser = { ...user, username, email, profileImage: avatarUri };
+        console.log('Saving user data:', updatedUser); // Debug log
+        setUser(updatedUser);
+        await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
+        toggleModal();
+      }
+    } catch (error) {
+      console.error('Error saving user data:', error);
+      alert('Failed to save profile changes. Please try again.');
     }
   };
 
