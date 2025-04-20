@@ -1,48 +1,95 @@
 import React from 'react';
 import { UserContext } from '@/context/UserContext';
 import { useUser } from '@/context/UserContext'
-import { View, Text, StyleSheet, Image, ScrollView, Animated } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Animated, TouchableOpacity, Image } from 'react-native';
 import { useEffect, useRef } from 'react';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 const HomePage = () => {
   const { user } = useUser();
   const fadeAnim = useRef(new Animated.Value(0)).current;
+  const router = useRouter();
 
   useEffect(() => {
     Animated.timing(fadeAnim, {
       toValue: 1,
-      duration: 1000,
+      duration: 800,
       useNativeDriver: true,
     }).start();
   }, []);
 
+  // Default profile image if user doesn't have one
+  const profileImage = user?.profileImage || 'https://ui-avatars.com/api/?name=' + (user?.username || 'User') + '&background=random';
+
+  const handleProfilePress = () => {
+    router.push('/profile');
+  };
+
+  const handleRecommendationsPress = () => {
+    router.push('/recommendation');
+  };
+
+  const handleNewSurveyPress = () => {
+    router.push('/hairsurvey')
+  }
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <Animated.View style={[styles.content, { opacity: fadeAnim }]}>
+        {/* Header Section */}
         <View style={styles.headerSection}>
-          <View style={styles.welcomeSection}>
-            <Text style={styles.welcomeText}>Welcome back,</Text>
-            <Text style={styles.username}>{user?.username}!</Text>
+          <View>
+            <Text style={styles.greeting}>Hello,</Text>
+            <Text style={styles.username}>{user?.username}</Text>
           </View>
-          <View style={styles.gifSection}>
-            <Image
-              source={{ uri: 'https://i.gifer.com/3iCT.gif' }}
-              style={styles.rotatingGif}
-              resizeMode="contain"
-              height={600}
+          <TouchableOpacity style={styles.profileButton} onPress={handleProfilePress}>
+            <Image 
+              source={{ uri: profileImage }} 
+              style={styles.profileImage}
             />
+          </TouchableOpacity>
+        </View>
+
+        {/* Quick Actions */}
+        <View style={styles.quickActionsSection}>
+          <Text style={styles.sectionTitle}>Quick Actions</Text>
+          <View style={styles.actionButtonsContainer}>
+            <TouchableOpacity style={styles.actionButton} onPress={handleNewSurveyPress}>
+              <Ionicons name="clipboard-outline" size={24} color="#333" />
+              <Text style={styles.actionText}>New Survey</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton} onPress={handleRecommendationsPress}>
+              <Ionicons name="analytics-outline" size={24} color="#333" />
+              <Text style={styles.actionText}>Profiles</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.actionButton}>
+              <Ionicons name="calendar-outline" size={24} color="#333" />
+              <Text style={styles.actionText}>Upcoming</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
+        {/* Recent Activity */}
         <View style={styles.recentActivitySection}>
           <Text style={styles.sectionTitle}>Recent Activity</Text>
           <View style={styles.activityCard}>
-            <Text style={styles.activityText}>Your last hair survey was completed</Text>
-            <Text style={styles.activityDate}>2 days ago</Text>
+            <View style={styles.activityIconContainer}>
+              <Ionicons name="checkmark-circle-outline" size={20} color="#4CAF50" />
+            </View>
+            <View style={styles.activityContent}>
+              <Text style={styles.activityText}>Hair survey completed</Text>
+              <Text style={styles.activityDate}>2 days ago</Text>
+            </View>
           </View>
           <View style={styles.activityCard}>
-            <Text style={styles.activityText}>New recommendations available</Text>
-            <Text style={styles.activityDate}>5 days ago</Text>
+            <View style={styles.activityIconContainer}>
+              <Ionicons name="notifications-outline" size={20} color="#2196F3" />
+            </View>
+            <View style={styles.activityContent}>
+              <Text style={styles.activityText}>New recommendations available</Text>
+              <Text style={styles.activityDate}>5 days ago</Text>
+            </View>
           </View>
         </View>
       </Animated.View>
@@ -53,7 +100,7 @@ const HomePage = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f8f9fa',
   },
   content: {
     padding: 20,
@@ -61,69 +108,96 @@ const styles = StyleSheet.create({
   headerSection: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginTop: 40,
     marginBottom: 30,
   },
-  welcomeSection: {
-    flex: 1,
-    marginRight: 20,
-  },
-  welcomeText: {
-    fontSize: 24,
-    color: '#333',
-    marginBottom: 5,
+  greeting: {
+    fontSize: 18,
+    color: '#666',
+    marginBottom: 4,
   },
   username: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#1a73e8',
+    fontSize: 28,
+    fontWeight: '600',
+    color: '#333',
   },
-  gifSection: {
-    backgroundColor: '#fff',
-    borderRadius: 15,
-    padding: 10,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.1,
-    shadowRadius: 3.84,
-    elevation: 5,
+  profileButton: {
+    padding: 5,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#e0e0e0',
   },
-  rotatingGif: {
-    width: 100,
-    height: 100,
-    borderRadius: 10,
+  profileImage: {
+    width: 110,
+    height: 110,
+    borderRadius: 12,
   },
-  recentActivitySection: {
-    marginTop: 20,
+  quickActionsSection: {
+    marginBottom: 30,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontWeight: '600',
     color: '#333',
     marginBottom: 15,
   },
-  activityCard: {
+  actionButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  actionButton: {
     backgroundColor: '#fff',
+    borderRadius: 12,
     padding: 15,
-    borderRadius: 10,
-    marginBottom: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '30%',
     shadowColor: '#000',
     shadowOffset: {
       width: 0,
       height: 1,
     },
     shadowOpacity: 0.1,
-    shadowRadius: 1.41,
+    shadowRadius: 2,
     elevation: 2,
+  },
+  actionText: {
+    marginTop: 8,
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  recentActivitySection: {
+    marginBottom: 20,
+  },
+  activityCard: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 15,
+    marginBottom: 10,
+    flexDirection: 'row',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  activityIconContainer: {
+    marginRight: 15,
+  },
+  activityContent: {
+    flex: 1,
   },
   activityText: {
     fontSize: 16,
     color: '#333',
-    marginBottom: 5,
+    marginBottom: 4,
   },
   activityDate: {
     fontSize: 14,
