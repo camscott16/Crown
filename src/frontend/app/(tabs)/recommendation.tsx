@@ -22,7 +22,7 @@ const RecommendationPage = () => {
 
   useEffect(() => {
     // If we don’t yet have a selectedProfileId but now do have profiles, pick the first
-    if (selectedProfileId === null && user?.hair_profiles?.length) {
+    if (user?.hair_profiles?.length) {
       setSelectedProfileId(user.hair_profiles[0].id);
     }
   }, [user?.hair_profiles]);
@@ -223,9 +223,9 @@ const RecommendationPage = () => {
           </View>
           <TouchableOpacity
             style={[styles.button]}
-            onPress={() => router.replace("/(tabs)/recommendation")}
+            onPress={() => goToRec()}
           >
-            <Text style={styles.buttonText} onPress={() => goToRec()}>Back to Recommendations</Text>
+            <Text style={styles.buttonText}>Back to Recommendations</Text>
           </TouchableOpacity>
         </View>
       )}
@@ -300,6 +300,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     textAlign: `center`,
     justifyContent: 'center',
+    alignSelf: 'center',
     marginBottom: 10,
   },
   buttonText: {

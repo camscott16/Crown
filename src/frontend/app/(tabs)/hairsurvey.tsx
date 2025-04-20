@@ -3,7 +3,7 @@ import { UserContext } from '@/context/UserContext';
 import { useUser } from '@/context/UserContext'
 import { Link, useRouter } from 'expo-router';
 import * as SecureStore from "expo-secure-store";
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, TextInput } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { MotiView, AnimatePresence } from 'moti'
 import { Easing } from 'react-native-reanimated'
@@ -21,6 +21,10 @@ const HairSurveyPage: React.FC = () => {
 
   const [survProgState, updateSurvProgState] = useState<number[]>([1, 0, 0, 0, 0]); // 1st question starts as "in progress"
   const [currentQuestion, setCurrentQuestion] = useState<number>(0);
+  const [initProfile, setInitProfile] = useState<boolean>(true);
+
+  const [currentName, setCurrentName] = useState<string>("");
+
   const [answers, setAnswers] = useState<{ [key: number]: string }>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [survActive, setSurvActive] = useState<boolean>(true);
@@ -35,6 +39,11 @@ const HairSurveyPage: React.FC = () => {
     }
   }, [user?.hair_profiles]);
   
+  const onChangeName = (text: string) => {
+    setCurrentName(text);
+    console.log(currentName);
+  }
+
   const selectedProfile = user?.hair_profiles.find(
     (p) => p.id === selectedProfileId
   ) ?? null;
@@ -90,6 +99,8 @@ const HairSurveyPage: React.FC = () => {
 
   const refreshSurvey = () => {
     updateSurvProgState([1, 0, 0, 0, 0]);
+    onChangeName("");
+    setInitProfile(true);
     setCurrentQuestion(0);
     setAnswers({});
     setSurvActive(true);
@@ -103,7 +114,7 @@ const HairSurveyPage: React.FC = () => {
   const sanitizeAnswers = (answers: { [key: number]: string }): { curl_type: string, porosity: string, volume: string, desired_outcome: string } => {
     // Define the sanitized object according to the HairProfile schema
     const sanitizedAnswerBody: { name: string, curl_type: string, porosity: string, volume: string, desired_outcome: string } = {
-      name: "hair_name_profile",
+      name: currentName,
       curl_type: answers[0] || "",
       volume: mapVolumeToValue(answers[1] || ""),
       porosity: mapPorosityToValue(answers[2] || ""),
@@ -206,6 +217,32 @@ const HairSurveyPage: React.FC = () => {
             easing: Easing.out(Easing.ease), // Use ease-out easing for smooth fade
           }}
         >
+        {initProfile && (
+          <>
+            <View style={styles.header}>
+              <Text style={styles.title}>Hair Survey</Text>
+              <Text style={styles.subtext}>
+                The hair survey is a short questionnaire that we use to create a hair profile tailored to you!
+                Your hair is unique, so try to answer each question accurately so that we can find products that will help you meet your hair goals!
+              </Text>
+            </View>
+            <TextInput
+              style={[styles.nameInput, { color: 'black' }]}
+              onChangeText={onChangeName}
+              value={currentName}
+              placeholder='Enter profile name'
+            >
+            </TextInput>
+            <TouchableOpacity 
+              style={styles.procBtn}
+              onPress={() => setInitProfile(false)}
+            >
+              <Text style={styles.procBtnText}>Continue</Text>
+            </TouchableOpacity>
+          </>
+        )}
+        {!initProfile && (
+          <>
           {/* title of screen */}
           <View style={styles.header}>
             <Text style={styles.title}>Hair Survey</Text>
@@ -281,6 +318,8 @@ const HairSurveyPage: React.FC = () => {
               <Text style={styles.buttonText}>{currentQuestion < totalQuestions - 1 ? "Next" : "Finish"}</Text>
             </TouchableOpacity>
           </View>
+          </>
+        )}
         </MotiView>
       )}
 
@@ -367,6 +406,35 @@ const styles = StyleSheet.create({
     fontWeight: 'semibold',
     marginBottom: 20,
     color: '#000',
+  },
+  subtext: {
+    color: 'hsl(0, 0%, 40%)',
+    textAlign: 'center',
+    lineHeight: 22,
+    fontSize: 16,
+  },
+  nameInput: {
+    textAlign: 'center',
+    alignSelf: 'center',
+    width: 250,
+    height: 50,
+    fontSize: 16,
+    backgroundColor: 'hsl(0, 0%, 95%)',
+    borderRadius: 50,
+    marginBottom: 25,
+  },
+  procBtn: {
+    backgroundColor: 'hsl(0, 0%, 0%)',
+    color: 'hsl(0, 0%, 100%)',
+    alignSelf: 'center',
+    height: 50,
+    width: 200,
+    borderRadius: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  procBtnText: {
+    color: 'hsl(0, 0%, 95%)',
   },
   prog: {
     flexDirection: "row",
