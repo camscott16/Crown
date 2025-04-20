@@ -99,13 +99,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       const data = await response.json();
       if (response.ok) {
+        // Get stored user data to preserve profile image
+        const storedUserJson = await AsyncStorage.getItem('user');
+        const storedUser = storedUserJson ? JSON.parse(storedUserJson) : null;
+        
+        // Also check for lastProfileImage
+        const lastProfileImage = await AsyncStorage.getItem('lastProfileImage');
+        console.log('Last profile image from storage:', lastProfileImage);
+        
         const user = {
           user_id: data.user_id,
           username: data.username,
           email: data.email,
           role: data.role,
           hair_profiles: [],
+          profileImage: storedUser?.profileImage || lastProfileImage || '',
         };
+        console.log('User with profile image:', user);
         setToken(jwt);
         setUser(user);
         fetchUserData(data.user_id);
@@ -140,8 +150,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           recommendation: null,
         }));
         
-        // console.log(profileArr);
+        // Get current user to preserve profile image
+        const currentUser = await AsyncStorage.getItem('user');
+        const parsedCurrentUser = currentUser ? JSON.parse(currentUser) : null;
+        const profileImage = parsedCurrentUser?.profileImage || '';
+        
+        // Load profiles while preserving profile image
+        const updatedUser = {
+          ...parsedCurrentUser,
+          hair_profiles: profileArr,
+          profileImage: profileImage, // Ensure profile image is preserved
+        };
+        
+        console.log('Updated user with profile image:', updatedUser);
         loadHairProfiles(profileArr);
+        setUser(updatedUser);
+        await AsyncStorage.setItem('user', JSON.stringify(updatedUser));
         console.log("success");
       } else {
         console.log("No profiles:", data.message); // e.g. "User has no hair profiles"
@@ -153,17 +177,32 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    const user = {
-      user_id: -1,
-      username: "guest",
-      email: "N/A",
-      role: 0,
-      hair_profiles: [],
-    };
-    await deleteItem("bearer");
-    setToken(null);
-    setUser(user);
-    router.replace("/(login)");
+    try {
+      // Store the current user's profile image before logout
+      const currentUser = await AsyncStorage.getItem('user');
+      const parsedCurrentUser = currentUser ? JSON.parse(currentUser) : null;
+      const profileImage = parsedCurrentUser?.profileImage || '';
+      
+      // Clear user data
+      await deleteItem("bearer");
+      setToken(null);
+      
+      // Store just the profile image for future use
+      if (profileImage) {
+        await AsyncStorage.setItem('lastProfileImage', profileImage);
+      }
+      
+      // Set user to null
+      setUser(null);
+      router.replace("/(login)");
+    } catch (error) {
+      console.error('Error during logout:', error);
+      // Still try to logout even if there's an error
+      await deleteItem("bearer");
+      setToken(null);
+      setUser(null);
+      router.replace("/(login)");
+    }
   };
 
   return (

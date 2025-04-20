@@ -22,4 +22,5 @@ export interface User {
     email: string;
     role: number;
     hair_profiles: Array<hair_profile>; // Changed to array
+    profileImage?: string; // Added profileImage property
 }

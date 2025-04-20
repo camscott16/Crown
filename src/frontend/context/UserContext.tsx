@@ -29,27 +29,54 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Load user from storage on app start
     const loadUser = async () => {
-      const storedUser = await AsyncStorage.getItem('user');
-      if (storedUser) {
-        setUser(JSON.parse(storedUser));
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        if (storedUser) {
+          const parsedUser = JSON.parse(storedUser);
+          console.log('Loaded user from storage:', parsedUser);
+          setUser(parsedUser);
+        }
+      } catch (error) {
+        console.error('Error loading user from storage:', error);
       }
     };
     loadUser();
   }, []);
 
   const saveUser = async (user: User | null) => {
-    if (user) {
-      await AsyncStorage.setItem('user', JSON.stringify(user));
-    } else {
-      await AsyncStorage.removeItem('user');
+    try {
+      if (user) {
+        console.log('Saving user to storage:', user);
+        await AsyncStorage.setItem('user', JSON.stringify(user));
+      } else {
+        await AsyncStorage.removeItem('user');
+      }
+      setUser(user);
+    } catch (error) {
+      console.error('Error saving user to storage:', error);
     }
-    setUser(user);
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('user');
-    await AsyncStorage.removeItem('bearer'); // Remove token as well
-    setUser(null);
+    try {
+      // Store the current user's profile image before logout
+      const currentUser = await AsyncStorage.getItem('user');
+      const parsedCurrentUser = currentUser ? JSON.parse(currentUser) : null;
+      const profileImage = parsedCurrentUser?.profileImage || '';
+      
+      // Clear user data
+      await AsyncStorage.removeItem('user');
+      await AsyncStorage.removeItem('bearer'); // Remove token as well
+      
+      // Store just the profile image for future use
+      if (profileImage) {
+        await AsyncStorage.setItem('lastProfileImage', profileImage);
+      }
+      
+      setUser(null);
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   };
 
   // Update the hair_profile type to include an id property
@@ -109,7 +136,15 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
     if (!storedUser) return;
   
     const parsedUser: User = JSON.parse(storedUser);
-    const loadedUser = { ...parsedUser, hair_profiles: hairProfiles };
+    const profileImage = parsedUser.profileImage || '';
+    
+    const loadedUser = { 
+      ...parsedUser, 
+      hair_profiles: hairProfiles,
+      profileImage: profileImage, // Ensure profile image is preserved
+    };
+    
+    console.log('Loaded user with profile image:', loadedUser);
     setUser(loadedUser);
     await AsyncStorage.setItem('user', JSON.stringify(loadedUser));
   };
