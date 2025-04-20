@@ -7,12 +7,23 @@ import { Easing } from 'react-native-reanimated';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+// Define the HairProfile interface
+interface HairProfile {
+  name?: string;
+  curl_type: string;
+  porosity: string;
+  volume: string;
+  desired_outcome: string;
+}
+
 const ProfilePage = () => {
   const { user, setUser } = useUser();
   const { logout } = useAuth();
   const [isModalVisible, setModalVisible] = useState(false);
   const [isNotificationsModalVisible, setNotificationsModalVisible] = useState(false);
   const [isPrivacyModalVisible, setPrivacyModalVisible] = useState(false);
+  const [isHairProfileModalVisible, setHairProfileModalVisible] = useState(false);
+  const [selectedHairProfile, setSelectedHairProfile] = useState<HairProfile | null>(null);
   const [username, setUsername] = useState(user?.username || '');
   const [email, setEmail] = useState(user?.email || '');
   const [avatarUri, setAvatarUri] = useState(user?.profileImage || '');
@@ -27,6 +38,11 @@ const ProfilePage = () => {
 
   const togglePrivacyModal = () => {
     setPrivacyModalVisible(!isPrivacyModalVisible);
+  };
+
+  const toggleHairProfileModal = (profile: HairProfile | null = null) => {
+    setSelectedHairProfile(profile);
+    setHairProfileModalVisible(!isHairProfileModalVisible);
   };
 
   const pickImage = async () => {
@@ -118,26 +134,20 @@ const ProfilePage = () => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Hair Profile</Text>
+          <Text style={styles.sectionTitle}>Hair Profiles</Text>
           <View style={styles.sectionContent}>
-            {user?.hair_profiles[0] ? (
+            {user?.hair_profiles && user.hair_profiles.length > 0 ? (
               <>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.infoLabel}>Hair Type</Text>
-                  <Text style={styles.infoValue}>{user.hair_profiles[0].curl_type}</Text>
-                </View>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.infoLabel}>Porosity</Text>
-                  <Text style={styles.infoValue}>{user.hair_profiles[0].porosity}</Text>
-                </View>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.infoLabel}>Volume</Text>
-                  <Text style={styles.infoValue}>{user.hair_profiles[0].volume}</Text>
-                </View>
-                <View style={styles.profileInfo}>
-                  <Text style={styles.infoLabel}>Desired Outcome</Text>
-                  <Text style={styles.infoValue}>{user.hair_profiles[0].desired_outcome}</Text>
-                </View>
+                {user.hair_profiles.map((profile, index) => (
+                  <TouchableOpacity 
+                    key={index} 
+                    style={styles.hairProfileItem}
+                    onPress={() => toggleHairProfileModal(profile)}
+                  >
+                    <Text style={styles.hairProfileName}>{profile.name || `Hair Profile ${index + 1}`}</Text>
+                    <Text style={styles.menuItemIcon}>→</Text>
+                  </TouchableOpacity>
+                ))}
               </>
             ) : (
               <TouchableOpacity style={styles.createProfileButton}>
@@ -211,6 +221,41 @@ const ProfilePage = () => {
               <Text style={styles.modalParagraph}>We, the developers of Crown, vow to never share your data with any of 
                 your personal or private data with any outiside organizations or parties. We care deeply about the safety of our Users!</Text>
               <Button title="Close" onPress={togglePrivacyModal} />
+            </View>
+          </View>
+        </Modal>
+
+        {/* Hair Profile Details Modal */}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={isHairProfileModalVisible}
+          onRequestClose={() => toggleHairProfileModal()}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Hair Profile Details</Text>
+              {selectedHairProfile && (
+                <>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.infoLabel}>Hair Type</Text>
+                    <Text style={styles.infoValue}>{selectedHairProfile.curl_type}</Text>
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.infoLabel}>Porosity</Text>
+                    <Text style={styles.infoValue}>{selectedHairProfile.porosity}</Text>
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.infoLabel}>Volume</Text>
+                    <Text style={styles.infoValue}>{selectedHairProfile.volume}</Text>
+                  </View>
+                  <View style={styles.profileInfo}>
+                    <Text style={styles.infoLabel}>Desired Outcome</Text>
+                    <Text style={styles.infoValue}>{selectedHairProfile.desired_outcome}</Text>
+                  </View>
+                </>
+              )}
+              <Button title="Close" onPress={() => toggleHairProfileModal()} />
             </View>
           </View>
         </Modal>
@@ -299,6 +344,19 @@ const styles = StyleSheet.create({
   menuItemIcon: {
     fontSize: 16,
     color: '#666',
+  },
+  hairProfileItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+  },
+  hairProfileName: {
+    fontSize: 16,
+    color: '#333',
+    fontWeight: '500',
   },
   profileInfo: {
     flexDirection: 'row',
